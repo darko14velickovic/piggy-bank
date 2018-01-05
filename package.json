@@ -1,0 +1,54 @@
+{
+  "name": "piggy-bank",
+  "version": "0.1.9",
+  "private": true,
+  "dependencies": {
+    "cross-env": "5.0.1",
+    "electron-is-dev": "0.1.2",
+    "electron-log": "^2.2.6",
+    "electron-updater": "^2.4.3",
+    "nedb": "^1.8.0",
+    "node-notifier": "^5.1.2",
+    "react": "15.5.4",
+    "react-desktop": "^0.3.3",
+    "react-dom": "15.5.4",
+    "react-redux": "^5.0.6",
+    "redux": "^3.7.2"
+  },
+  "devDependencies": {
+    "concurrently": "3.4.0",
+    "electron": "1.6.10",
+    "electron-builder": "^19.8.0",
+    "prettier": "^1.4.4",
+    "react-scripts": "1.0.7",
+    "redux-devtools": "^3.4.1",
+    "wait-on": "2.0.2"
+  },
+  "main": "public/electron.js",
+  "homepage": "./",
+  "build": {
+    "appId": "com.darko.piggy-bank",
+    "files": [
+      "build/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    },
+    "publish": {
+      "provider": "github"
+    }
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "electron-dev": "concurrently \"cross-env BROWSER=none yarn start\" \"wait-on http://localhost:3000 && electron .\"",
+    "electron-pack": "build --em.main=build/electron.js",
+    "electron-release": "build --em.main=build/electron.js --publish=always",
+    "preelectron-pack": "yarn build",
+    "preelectron-release": "yarn build"
+  }
+}
