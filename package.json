@@ -9,6 +9,7 @@
     "electron-updater": "^2.4.3",
     "nedb": "^1.8.0",
     "node-notifier": "^5.1.2",
+    "prop-types": "^15.6.0",
     "react": "15.5.4",
     "react-desktop": "^0.3.3",
     "react-dom": "15.5.4",

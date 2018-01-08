@@ -1,7 +1,16 @@
 import React, { Component } from 'react';
 import { Window, NavPaneItem, NavPane, TitleBar, View, Dialog, Pin, Button, Text, ProgressCircle } from 'react-desktop/windows';
 import logo from './logo.svg';
+import AccountIcon from './icons/AccountIcon'
+import HomeIcon from './icons/HomeIcon'
+import DollarIcon from './icons/DollarIcon'
 import './App.css';
+
+
+import DebtComponent from './components/DebtComponent'
+import HomeComponent from './components/HomeComponent'
+import AccountComponent from './components/AccountComponent'
+
 
 const remote = window.require('electron').remote;
 const path = window.require('path');
@@ -9,8 +18,6 @@ const app = remote.app;
 
 var Datastore = remote.require('nedb')
     , db = new Datastore({ filename: path.join(app.getAppPath(), "/db/test.db"), autoload: true });
-
-
 
 class App extends Component {
 
@@ -22,6 +29,18 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = { isMaximized: true };
+
+    this.iconDict = {};
+    this.iconDict["Home"] = <HomeIcon />;
+    this.iconDict["Account"] = <AccountIcon />;
+    this.iconDict["Debt"] = <DollarIcon />;
+
+    this.views = {};
+    this.views["Home"] = <HomeComponent />;
+    this.views["Account"] = <AccountComponent />;
+    this.views["Debt"] = <DebtComponent />;
+
+    this.state.selected = "Home";
   }
 
   close = () => remote.BrowserWindow.getFocusedWindow().close();
@@ -29,36 +48,16 @@ class App extends Component {
 
   toggleMaximize = () => this.setState({ isMaximized: !this.state.isMaximized });
 
-  testDb(){
-    var doc = { hello: 'world'
-               , n: 5
-               , today: new Date()
-               , nedbIsAwesome: true
-               , notthere: null
-               , notToBeSaved: undefined  // Will not be saved
-               , fruits: [ 'apple', 'orange', 'pear' ]
-               , infos: { name: 'nedb' }
-               };
-
-    db.insert(doc, function (err, newDoc) {   // Callback is optional
-      // newDoc is the newly inserted document, including its _id
-      // newDoc has no key called notToBeSaved since its value was undefined
-      console.log(err);
-      console.log(newDoc);
-    });
-  }
-
   renderIcon(title){
     const fill = this.props.theme === 'dark' ? '#ffffff' : '#000000';
 
     return (
-        <svg x="0px" y="0px" width="16px" height="14.9px" viewBox="0 0 16 14.9">
-          <polygon fill={fill} points="16,5.6 10.6,4.7 8,0 5.4,4.7 0,5.7 3.8,9.6 3.1,14.9 8,12.6 13,14.8 12.3,9.5 "/>
-        </svg>
+        this.iconDict[title]
       );
   }
 
   renderItem(title, content) {
+
     return (
       <NavPaneItem
         title={title}
@@ -66,11 +65,11 @@ class App extends Component {
         theme="dark"
         background="#fff"
         selected={this.state.selected === title}
-        onSelect={this.testDb}
+        onSelect={() => {this.setState({ selected: title }); console.log("Selected: " + title)}}
         padding="10px 20px"
         push
       >
-        <Text>{content}</Text>
+        {this.views[title]}
       </NavPaneItem>
     );
   }
@@ -94,9 +93,9 @@ class App extends Component {
       />
 
         <NavPane openLength={200} push background={this.props.background} color={this.props.color} theme={this.props.theme}>
-        {this.renderItem('Item 1', 'Content 1')}
-        {this.renderItem('Item 2', 'Content 2')}
-        {this.renderItem('Item 3', 'Content 3')}
+        {this.renderItem('Home', 'Content 1')}
+        {this.renderItem('Account', 'Content 2')}
+        {this.renderItem('Debt', 'Content 3')}
       </NavPane>
       </Window>
     );
