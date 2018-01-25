@@ -16,9 +16,6 @@ const remote = window.require('electron').remote;
 const path = window.require('path');
 const app = remote.app;
 
-var Datastore = remote.require('nedb')
-    , db = new Datastore({ filename: path.join(app.getAppPath(), "/db/test.db"), autoload: true });
-
 class App extends Component {
 
   static defaultProps = {
@@ -28,7 +25,7 @@ class App extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { isMaximized: true };
+    this.state = { isMaximized: true, loggedInUser:"" };
 
     this.iconDict = {};
     this.iconDict["Home"] = <HomeIcon />;
@@ -36,9 +33,13 @@ class App extends Component {
     this.iconDict["Debt"] = <DollarIcon />;
 
     this.views = {};
-    this.views["Home"] = <HomeComponent />;
-    this.views["Account"] = <AccountComponent />;
-    this.views["Debt"] = <DebtComponent />;
+    this.views["Home"] = <HomeComponent loggedInUser={this.state.loggedInUser} />;
+    this.views["Account"] = <AccountComponent
+                              OnSubmitEvent={this.changeLoggedInUser.bind(this)}
+                              loggedInUser={this.state.loggedInUser}
+                              OnLogoutEvent={this.logout.bind(this)} />;
+
+    this.views["Debt"] = <DebtComponent loggedInUser={this.state.loggedInUser} />;
 
     this.state.selected = "Home";
   }
@@ -47,6 +48,17 @@ class App extends Component {
   minimize = () => remote.BrowserWindow.getFocusedWindow().minimize();
 
   toggleMaximize = () => this.setState({ isMaximized: !this.state.isMaximized });
+
+
+  logout()
+  {
+    this.setState({loggedInUser : ""});
+  }
+
+  changeLoggedInUser(user){
+    this.setState({loggedInUser : user.email});
+  }
+
 
   renderIcon(title){
     const fill = this.props.theme === 'dark' ? '#ffffff' : '#000000';
@@ -58,9 +70,20 @@ class App extends Component {
 
   renderItem(title, content) {
 
+    let titleComposite = '';
+    if(this.state.loggedInUser != '')
+    {
+      titleComposite = title + ' - ' + this.state.loggedInUser;
+    }
+    else
+    {
+      titleComposite = title;
+    }
+
+
     return (
       <NavPaneItem
-        title={title}
+        title={titleComposite}
         icon={this.renderIcon(title)}
         theme="dark"
         background="#fff"
@@ -81,7 +104,7 @@ class App extends Component {
         padding="10px"
       >
         <TitleBar
-        title="My Windows Application"
+        title="Piggy bank"
         controls
         isMaximized={this.state.isMaximized}
         theme={this.props.theme}
@@ -90,7 +113,7 @@ class App extends Component {
         onMinimizeClick={this.minimize}
         onMaximizeClick={this.toggleMaximize}
         onRestoreDownClick={this.toggleMaximize}
-      />
+        />
 
         <NavPane openLength={200} push background={this.props.background} color={this.props.color} theme={this.props.theme}>
         {this.renderItem('Home', 'Content 1')}
