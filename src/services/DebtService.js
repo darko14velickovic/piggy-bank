@@ -15,42 +15,56 @@ class DebtService {
     });
   }
 
-  insertDebt(debtObject) {
+  insertDebt(debtObject, callback) {
+      var that = this;
+      this.db.debts.find({ name: debtObject.name, currency: debtObject.currency, accountEmail: debtObject.accountEmail },
+        function (err, docs) {
 
-      this.db.debts.find({ name: debtObject.name }, function (err, docs) {
+                  if(docs.length === 0)
+                  {
+                    that.db.debts.insert(debtObject, function (err, newDoc) {
 
-          if(docs.length === 0)
-          {
-            this.db.debts.insert(debtObject, function (err, newDoc) {
+                      console.log(err);
+                      console.log(newDoc);
 
-              console.log(err);
-              console.log(newDoc);
+                    });
+                  }
+                  else
+                  {
+                    that.db.debts.update({ _id: docs[0]._id },
+                    { $set: { money: docs[0].money + debtObject.money } },
+                    function (err, numReplaced) {
 
-            });
-          }
-          else
-          {
-            this.db.update({ _id: docs[0]._id },
-            { $set: { money: docs[0].money + debtObject.money } },
-            function (err, numReplaced) {
+                      console.log(err);
+                      console.log(numReplaced);
 
-              console.log(err);
-              console.log(numReplaced);
+                    });
+                  }
 
-            });
-          }
+                  callback();
 
-      });
+        });
 
 
   }
 
-  removeDebt(debtID){
+  removeDebt(debtID, successCallback, errorCallback){
 
     this.db.debts.remove({ _id: debtID }, {}, function (err, numRemoved) {
 
-      console.log("Removed: ");
-      console.log(numRemoved);
+      if(err)
+      {
+        errorCallback(err);
+        console.log("Not removing, error.");
+        console.e(err);
+      }
+      else
+      {
+        successCallback(numRemoved);
+        console.log("Removed: ");
+        console.log(numRemoved);
+      }
+
 
     });
 

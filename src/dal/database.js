@@ -3,7 +3,9 @@ const path = window.require('path');
 const app = remote.app;
 const Datastore = remote.require('nedb');
 
+
 class DatabaseContext {
+
 
   constructor() {
 

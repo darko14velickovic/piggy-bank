@@ -11,7 +11,7 @@ class AccountComponent extends React.Component{
 
  constructor(props) {
     super(props);
-    this.state = { showLoginForm : true };
+    this.state = { showLoginForm : true, loggedInUser : props.loggedInUser};
 
     this.currentEmail = props.loggedInUser;
     this.accountService = new AccountService(new DatabaseContext());
@@ -29,6 +29,8 @@ class AccountComponent extends React.Component{
   {
     console.log("Handling logout in account component!");
     console.log(obj);
+
+    this.setState({loggedInUser : "" });
     this.props.OnLogoutEvent();
   }
 
@@ -39,7 +41,10 @@ class AccountComponent extends React.Component{
         if(result.status === "Success")
         {
           that.currentEmail = result.email;
+          that.setState({ loggedInUser: result.email });
+
           that.props.OnSubmitEvent({ email: that.currentEmail });
+          alert("Logged in as: " + that.currentEmail);
         }
         else
         {
@@ -58,12 +63,24 @@ class AccountComponent extends React.Component{
 
   handleCreateFormSubmit(obj)
   {
+
+    var that = this;
+    let safeKeeping = Object.assign({}, obj);
+
+    this.accountService.createAccount(obj,
+      function(){
+        alert("Successfully created account: " + obj.email);
+        that.handleLoginFormSubmit(safeKeeping);
+    },function(err){
+      alert("Creation of the account failed!");
+    });
+
     console.log("Create form object:");
-    this.accountService.createAccount(obj);
     console.log(obj);
   }
 
   render() {
+    const boolLogFlag = this.state.loggedInUser != '';
     return (
       <View
         color={this.props.color}
@@ -72,11 +89,14 @@ class AccountComponent extends React.Component{
         verticalAlignment="left"
         layout="vertical"
       >
+      { boolLogFlag ? <h3>User: {this.state.loggedInUser} logged in.</h3> : "" }
+
       <SwitchComponent OnChangeEvent={this.handleCreateAccountClick} />
 
       { this.state.showLoginForm
                 ? <AccountLoginForm OnSubmitEvent={this.handleLoginFormSubmit.bind(this)}
-                                    OnLogoutEvent={this.handleLogoutFormSubmit.bind(this)} />
+                                    OnLogoutEvent={this.handleLogoutFormSubmit.bind(this)}
+                                    loggedIn = {boolLogFlag} />
                 : <AccountCreateForm OnSubmitEvent={this.handleCreateFormSubmit.bind(this)} />
       }
 

@@ -17,9 +17,10 @@ function createWindow() {
 
   mainWindow = new BrowserWindow(
     {
-      width: 900,
-      height: 680,
-      minWidth: 450,
+      width: 1000,
+      height: 800,
+      minWidth: 1000,
+      minHeight: 800,
       frame:false,
       icon: path.join(__dirname, '../src/logo.svg')
     });

@@ -32,7 +32,7 @@ class AccountService {
       });
   }
 
-  createAccount(accountObject) {
+  createAccount(accountObject, successCallback, failedCallback) {
 
       let context = this.db.users;
 
@@ -44,8 +44,19 @@ class AccountService {
             accountObject.password = crypto.createHash('sha256').update(accountObject.password).digest('base64');
 
             context.insert(accountObject, function (err, newDoc) {
-              console.log(err);
-              console.log(newDoc);
+
+              if(err)
+              {
+                console.log(err);
+                failedCallback(err);
+              }
+              else
+              {
+                console.log(newDoc);
+                successCallback();
+              }
+
+
             });
 
           }
@@ -53,6 +64,7 @@ class AccountService {
           {
             alert("Account with email: " + accountObject.email +
               " already exists!");
+            failedCallback("AlreadyExists");
           }
 
 
@@ -85,6 +97,12 @@ class AccountService {
             if(hash === docs[0].password)
             {
               docs[0].status = "Success";
+
+              if(window.localStorage != undefined)
+              {
+                  window.localStorage.setItem('loggedInUser', object.email);
+              }
+
               callback(docs[0])
             }
             else

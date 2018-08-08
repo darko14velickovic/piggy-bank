@@ -26,7 +26,7 @@ class HomeComponent extends React.Component{
         verticalAlignment="left"
         padding="0px"
       >
-        Home screen text.
+        Home screen text for user {this.props.loggedInUser}
       </Text>
 
       </View>
