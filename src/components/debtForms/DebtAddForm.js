@@ -1,8 +1,9 @@
 import styles from './styles/windows10';
-import React, { Component } from 'react';
-import { Button, Label } from 'react-desktop/windows';
+import React from 'react';
+import { Button } from 'react-desktop/windows';
 import PropTypes from 'prop-types';
-import Radium from 'radium';
+import SavingsService from '../../services/SavingsService'
+import DatabaseContext from '../../dal/database'
 
 
 class DebtAddForm extends React.Component{
@@ -11,6 +12,7 @@ class DebtAddForm extends React.Component{
     super(props);
 
     this.state = {
+                  loggedInUser: this.props.loggedInUser,
                   name: '',
                   money: 0,
                   currency: '€',
@@ -26,9 +28,21 @@ class DebtAddForm extends React.Component{
     this.handleChangeName = this.handleChangeName.bind(this);
     this.handleChangeMoney = this.handleChangeMoney.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleSavingsAccountChange = this.handleSavingsAccountChange.bind(this);
 
     this.handleCurrencyChange = this.handleCurrencyChange.bind(this);
+
+    this.savingService = new SavingsService(DatabaseContext);
+
   }
+
+  componentWillMount() {
+    var that = this;
+    this.savingService.getAllSavingsForUser(this.state.loggedInUser, function(list){
+      that.setState({savingsAccounts : list, savingsAccount: list[0]});
+    })
+  }
+
 
   validate(name, money) {
     // true means invalid, so our conditions got reversed
@@ -97,7 +111,7 @@ class DebtAddForm extends React.Component{
 
 
     let savingsAccountOptions = this.state.savingsAccounts.map((acc) =>
-      <option key={acc._id} value="{acc._id}">{acc.name}</option>
+      <option key={acc._id} value={acc._id}>{acc.name}</option>
     );
 
     return (
@@ -118,7 +132,7 @@ class DebtAddForm extends React.Component{
             Savings account:
 
             <div className='custom-select'>
-              <select value={this.state.savingsAccount} onChange={this.handleCurrencyChange}>
+              <select value={this.state.savingsAccount} onChange={this.handleSavingsAccountChange}>
                 {savingsAccountOptions}
               </select>
             </div>

@@ -1,23 +1,16 @@
-import React, { Component } from 'react';
-import { Button, View, Label } from 'react-desktop/windows';
+import { View } from 'react-desktop/windows';
 import DebtService from '../services/DebtService'
 import DebtAddForm from './debtForms/DebtAddForm'
 import DatabaseContext from '../dal/database'
-import DebtListComponent from './DebtComponent'
 import styles from './DebtComponentStyle';
-
-const remote = window.require('electron').remote;
-const path = window.require('path');
-const app = remote.app;
-
+import OfflineStorage from '../dal/browser-storage'
+import React from 'react';
 
 
 class DebtComponent extends React.Component{
 
  constructor(props) {
     super(props);
-
-    var that = this;
 
     this.state = {
                   name: props.name,
@@ -27,7 +20,8 @@ class DebtComponent extends React.Component{
                   initialDebts: [],
                 };
 
-    this.debtService = new DebtService(new DatabaseContext());
+    this.debtService = new DebtService(DatabaseContext);
+    this.storage = new OfflineStorage();
   }
 
   componentWillMount() {
@@ -86,17 +80,14 @@ class DebtComponent extends React.Component{
       })
     }
 
-
   }
 
   render() {
 
     const loggedIn = this.state.loggedInUser != '';
     let listStyle = { ...styles.listHolder };
-    let hrStyle = { ...styles.hrStyle };
     let listItemStyle = { ...styles.listItemStyle };
     let removeIconStyle = { ...styles.removeIconStyle };
-    let editIconStyle = { ...styles.editIconStyle };
     let textBoxStyle = { ...styles.textBox };
 
 
@@ -125,16 +116,16 @@ class DebtComponent extends React.Component{
 
           <label>
             Search:
-
             <input style={textBoxStyle} type="text"
                    value={this.state.name}
                    onChange={this.handleSearchParam.bind(this)}/>
           </label>
 
+
           <ul className="ul-holder" style={listStyle}>{listItems}</ul>
 
           <div className="inline-content">
-            <DebtAddForm name={this.state.name} money={this.state.money} OnSubmitEvent={this.handleAddFormSubmit.bind(this)} />
+            <DebtAddForm loggedInUser={this.state.loggedInUser} name={this.state.name} money={this.state.money} OnSubmitEvent={this.handleAddFormSubmit.bind(this)} />
           </div>
       </View>
 

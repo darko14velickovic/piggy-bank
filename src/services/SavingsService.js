@@ -16,27 +16,55 @@ class SavingsService {
   }
 
   createSavingsAccount(accountObject, callback) {
-      var that = this;
-      this.db.savings.find({ accountEmail: accountObject.accountEmail, name: accountObject.name },
-        function (err, docs) {
+    var that = this;
+    this.db.savings.find({ accountEmail: accountObject.accountEmail, name: accountObject.name },
+      function (err, docs) {
+        if (err) {
+          alert("Error happened with account creation!");
+          return;
+        }
 
-                  if(docs.length === 0)
-                  {
-                    that.db.savings.insert(accountObject, function (err, newDoc) {
+        if (docs.length === 0) {
+          that.db.savings.insert(accountObject, function (err, newDoc) {
 
-                      console.log(err);
-                      console.log(newDoc);
+            console.log(err);
+            console.log(newDoc);
 
-                    });
-                  }
-                  else
-                  {
-                    alert("Account already exists!");
-                  }
+            callback(newDoc);
 
-                  callback();
+          });
+        }
+        else {
+          that.db.savings.update({ _id: docs[0]._id },
+            {
+              $set:
+              {
+                amount: accountObject.amount,
+                name: accountObject.name,
+                currency: accountObject.currency
+              }
+            },
+            {
+              multi:false
+            },
+            function (err, numReplaced) {
 
-        });
+              console.log(err);
+              if(!err)
+              {
+                let returnObject = Object.assign(docs[0]);
+
+                returnObject.amount = accountObject.amount;
+                returnObject.name = accountObject.name;
+                returnObject.currency =accountObject.currency;
+
+                callback(returnObject);
+              }
+              console.log(numReplaced);
+
+            });
+        }
+      });
 
   }
 

@@ -19,7 +19,6 @@ class DebtService {
       var that = this;
       this.db.debts.find({ name: debtObject.name, currency: debtObject.currency, accountEmail: debtObject.accountEmail },
         function (err, docs) {
-
                   if(docs.length === 0)
                   {
                     that.db.debts.insert(debtObject, function (err, newDoc) {
@@ -34,7 +33,7 @@ class DebtService {
                     that.db.debts.update({ _id: docs[0]._id },
                     { $set: { money: docs[0].money + debtObject.money } },
                     function (err, numReplaced) {
-
+                      
                       console.log(err);
                       console.log(numReplaced);
 

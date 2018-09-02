@@ -99,6 +99,7 @@ input:checked + .slider:before {
   position: relative;
   display: block;
   border:none;
+  padding:0px;
 }
 
 /* This is the native select, we're making everything but the text invisible so

@@ -1,4 +1,8 @@
-import React, { Component } from 'react';
+import React from 'react';
+import SavingsService from '../services/SavingsService'
+import DatabaseContext from '../dal/database'
+import styles from './styles/windows10';
+import { Button } from 'react-desktop/windows';
 
 class SavingsComponent extends React.Component{
 
@@ -10,11 +14,46 @@ class SavingsComponent extends React.Component{
     this.state = {
                   loggedInUser : this.props.loggedInUser,
                   savingsAccounts: [],
-                  createSavings: false
+                  initialSavingsAccounts: [],
+                  createSavings: false,
+                  currentSavingsAccountName: '',
+                  currentSavingsAccountStatus: 0,
+                  currentSavingsCurrency: 'din'
                  };
 
     this.openCreateSavingsAccount = this.openCreateSavingsAccount.bind(this);
     this.createSaving = this.createSaving.bind(this);
+    this.closeForm = this.closeForm.bind(this);
+
+    this.handleSavingsNameChange= this.handleSavingsNameChange.bind(this);
+    this.handleSavingsStatusChange = this.handleSavingsStatusChange.bind(this);
+    this.handleSavingsCurrencyChange = this.handleSavingsCurrencyChange.bind(this);
+
+
+    this.savingService = new SavingsService(DatabaseContext);
+
+  }
+
+  componentWillMount() {
+    var that = this;
+    this.savingService.getAllSavingsForUser(this.state.loggedInUser, function(list){
+      that.setState({savingsAccounts : list, initialSavingsAccounts: list});
+    })
+  }
+
+  handleSavingsNameChange(event)
+  {
+    this.setState({currentSavingsAccountName: event.target.value});
+  }
+
+  handleSavingsStatusChange(event)
+  {
+    this.setState({currentSavingsAccountStatus: event.target.value});
+  }
+
+  handleSavingsCurrencyChange(event)
+  {
+    this.setState({currentSavingsCurrency: event.target.value});
   }
 
   updateView(loggedUser){
@@ -23,15 +62,92 @@ class SavingsComponent extends React.Component{
 
   openCreateSavingsAccount(){
     console.log("Opening the create account menu.");
-    this.setState({createSavings: true});
+    this.setState(
+      {
+        createSavings: true,
+        currentSavingsAccountName: '',
+        currentSavingsAccountStatus: 0,
+        currentSavingsCurrency: 'din'
+      });
   }
-  createSaving(){
-    console.log("Simulate create saving.");
-    this.state.savingsAccounts.push({ _id: new Date().toLocaleTimeString(), name: "Random", amount: "100k", currency: "din"});
-    this.setState({createSavings: false});
+
+  closeForm()
+  {
+    this.setState({ createSavings: false });
   }
+
+  createSaving() {
+    let that = this;
+    let saveObject = {
+      accountEmail: this.state.loggedInUser,
+      name: this.state.currentSavingsAccountName,
+      currency: this.state.currentSavingsCurrency,
+      amount: this.state.currentSavingsAccountStatus,
+    };
+
+    this.savingService.createSavingsAccount(saveObject, function (newObject) {
+
+      let currentlyShown = that.state.savingsAccounts.filter(function (item) {
+        return item.name === saveObject.name;
+      });
+
+      if (currentlyShown.length === 0) {
+        let newArray = that.state.savingsAccounts.concat(newObject);
+        that.setState({ savingsAccounts: newArray });
+      }
+      else {
+
+        let index = that.state.savingsAccounts.findIndex(function (c) {
+          return c._id == newObject._id;
+        });
+
+        var newArray = [].concat(that.state.savingsAccounts);
+        var newArray2 = newArray.splice(index, 1, newObject);
+        that.setState({ savingsAccounts: newArray });
+      }
+      that.setState({ createSavings: false });
+    })
+
+
+  }
+
+  openSavingsAccount(id)
+  {
+    let newArray = this.state.savingsAccounts.filter(function(item){
+      return item._id === id;
+    });
+
+    let selectedAccount = newArray[0];
+
+    let stateObject = {
+      createSavings: true,
+      currentSavingsAccountName: selectedAccount.name,
+      currentSavingsAccountStatus: selectedAccount.amount,
+      currentSavingsCurrency: selectedAccount.currency
+    };
+
+    this.setState(stateObject);
+
+  }
+
+  deleteSavingsAccount(id) {
+    let that = this;
+    this.savingService.removeSavingsAccount(id,
+      function () {
+        let newArray = that.state.savingsAccounts.filter(function(item){
+          return item._id !== id;
+        })
+
+        that.setState({ savingsAccounts: newArray});
+      },
+      function () {
+        alert("Error happened while deleting savings account!");
+      })
+  }
+
   render() {
     let renderCreateSevings = this.state.createSavings;
+    let componentStyle = { ...styles.textBox };
 
     const savingsList = this.state.savingsAccounts.map((savingsAccount) =>
       <div key={savingsAccount._id} className="saving-item col-md-3">
@@ -55,8 +171,8 @@ class SavingsComponent extends React.Component{
 
           <div className="row">
             <div className="col-md-12">
-              <i className="fa fa-eye small-icon"></i>
-              <i className="fa fa-times small-icon"></i>
+              <i className="fa fa-eye small-icon" onClick={() => this.openSavingsAccount(savingsAccount._id)}></i>
+              <i className="fa fa-times small-icon" onClick={() => this.deleteSavingsAccount(savingsAccount._id)}></i>
             </div>
           </div>
 
@@ -65,37 +181,71 @@ class SavingsComponent extends React.Component{
 
     return (
       <div className="row container">
-      <div className="saving-holder row">
-
-        {savingsList}
-
-        <div className="saving-item col-md-3">
-
+        <div className="saving-holder col-md-12">
           <div className="row">
-            <div className="col-md-12">
-              <i onClick={this.openCreateSavingsAccount} className="fa fa-plus-square big-icon"></i>
-            </div>
-          </div>
+            {savingsList}
 
-          <div className="row">
-            <div className="col-md-12">
-              <i className="add-text-field" > Add new savings </i>
+            <div className="saving-item col-md-3">
+
+              <div className="row">
+                <div className="col-md-12">
+                  <i onClick={this.openCreateSavingsAccount} className="fa fa-plus-square big-icon"></i>
+                </div>
+              </div>
+
+              <div className="row">
+                <div className="col-md-12">
+                  <i className="add-text-field" > Add new savings </i>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+        <div className="col-md-3 no-left-padding">
+          {renderCreateSevings &&
 
-      <div className="row">
-      {renderCreateSevings &&
+            <div className="col-lg-12 no-left-padding">
+              <label>
+                Savings name:
+                <input className=""
+                  style={componentStyle} type="text"
+                  value={this.state.currentSavingsAccountName}
+                  onChange={this.handleSavingsNameChange}
+                //  onBlur={this.handleBlur('email')} 
+                />
+              </label>
 
-            <div className="col-lg-12">
-              <h1>Placeholder saver</h1>
-              <button onClick={this.createSaving}>Save</button>
+              <label>
+                Current status:
+                <input className=""
+                  style={componentStyle} type="number"
+                  value={this.state.currentSavingsAccountStatus}
+                  onChange={this.handleSavingsStatusChange}
+                //  onBlur={this.handleBlur('password')} 
+                />
+              </label>
+
+              <label>
+                Currency:
+
+                <div className='custom-select'>
+                  <select value={this.state.currentSavingsCurrency} onChange={this.handleSavingsCurrencyChange}>
+                    <option value="€">Euro</option>
+                    <option value="din">Dinar</option>
+                  </select>
+                </div>
+              </label>
+            <div className="row">
+
+              <Button className="col align-self-start m-r-small" push color={this.props.color} onClick={this.createSaving}>Save</Button>
+              <Button className="col align-self-end m-l-small" push color={this.props.color} onClick={this.closeForm}>Cancel</Button>
+            </div>
+
             </div>
 
 
-        }
-      </div>
+          }
+        </div>
       </div>
 
       )

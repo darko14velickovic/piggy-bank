@@ -1,10 +1,11 @@
-import React, { Component } from 'react';
-import { View, Label, Button } from 'react-desktop/windows';
+import React from 'react';
+import { View } from 'react-desktop/windows';
 import AccountLoginForm from './accountForms/AccountLoginForm'
 import AccountCreateForm from './accountForms/CreateAccountForm'
 import AccountService from '../services/AccountService'
 import SwitchComponent from './Switch'
 import DatabaseContext from '../dal/database'
+import OfflineStorage from '../dal/browser-storage'
 import PropTypes from 'prop-types';
 
 class AccountComponent extends React.Component{
@@ -13,8 +14,11 @@ class AccountComponent extends React.Component{
     super(props);
     this.state = { showLoginForm : true, loggedInUser : props.loggedInUser};
 
+
+    this.storage = new OfflineStorage();
+
     this.currentEmail = props.loggedInUser;
-    this.accountService = new AccountService(new DatabaseContext());
+    this.accountService = new AccountService(DatabaseContext);
 
     this.handleCreateAccountClick = this.handleCreateAccountClick.bind(this);
   }
@@ -42,6 +46,7 @@ class AccountComponent extends React.Component{
         {
           that.currentEmail = result.email;
           that.setState({ loggedInUser: result.email });
+          that.storage.setLoggedinUser(result.email);
 
           that.props.OnSubmitEvent({ email: that.currentEmail });
           alert("Logged in as: " + that.currentEmail);

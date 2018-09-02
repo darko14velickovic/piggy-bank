@@ -1,34 +1,38 @@
 import React, { Component } from 'react';
-import { Window, NavPaneItem, NavPane, TitleBar, View, Dialog, Pin, Button, Text, ProgressCircle } from 'react-desktop/windows';
-import logo from './logo.svg';
+import { Provider } from "react-redux";
+import store from "./store/index";
+import { Window, NavPaneItem, NavPane, TitleBar } from 'react-desktop/windows';
 import AccountIcon from './icons/AccountIcon'
 import HomeIcon from './icons/HomeIcon'
 import DollarIcon from './icons/DollarIcon'
 import SavingsIcon from './icons/SavingsIcon'
-
 import './App.css';
-
-
 import DebtComponent from './components/DebtComponent'
 import HomeComponent from './components/HomeComponent'
 import AccountComponent from './components/AccountComponent'
 import SavingsComponent from './components/SavingsComponent'
+import OfflineStorage from './dal/browser-storage'
 
 const remote = window.require('electron').remote;
-const path = window.require('path');
-const app = remote.app;
 
 class App extends Component {
 
   static defaultProps = {
     theme: 'light',
     background: '#bec7d1',
-    color: '#bec8d3'
+    color: '#E4E4E4'
   };
 
   constructor(props) {
     super(props);
-    this.state = { isMaximized: true, loggedInUser:"" };
+
+    this.storage = new OfflineStorage();
+    let testUser = this.storage.getLoggedinUser();
+    let email = "";
+    if(testUser != null)
+      email = testUser
+
+    this.state = { isMaximized: true, loggedInUser: email };
 
     this.iconDict = {};
     this.iconDict["Home"] = <HomeIcon />;
@@ -70,12 +74,7 @@ class App extends Component {
   {
 
     this.setState({loggedInUser : ""});
-
-    if(window.localStorage != undefined)
-    {
-      window.localStorage.removeItem('loggedInUser');
-      window.localStorage.removeItem('lastState');
-    }
+    this.storage.logoutTheCurrentuser();
   }
 
   changeLoggedInUser(user){
@@ -131,6 +130,7 @@ class App extends Component {
     }
 
     return (
+      <Provider store={store}>
       <Window
         chrome
         padding="10px"
@@ -211,6 +211,8 @@ class App extends Component {
 
       </NavPane>
       </Window>
+      </Provider>
+      
     );
   }
 }
