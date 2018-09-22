@@ -40,6 +40,7 @@ class DebtAddForm extends React.Component{
     var that = this;
     this.savingService.getAllSavingsForUser(this.state.loggedInUser, function(list){
       that.setState({savingsAccounts : list, savingsAccount: list[0]});
+      that.props.OnAccountChange(list[0]);
     })
   }
 
@@ -69,12 +70,14 @@ class DebtAddForm extends React.Component{
 
   handleSavingsAccountChange(event)
   {
+    console.log(event.target.value);
     this.setState({savingsAccount: event.target.value});
+    this.props.OnAccountChange(event.target.value);
   }
 
   handleSubmit(event) {
     event.preventDefault();
-    if(this.state.savingsAccount == '')
+    if(this.state.savingsAccount === undefined || this.state.savingsAccount === '')
     {
       alert('Please create savings account first!');
       return;
@@ -83,7 +86,11 @@ class DebtAddForm extends React.Component{
     alert('A name was submitted: ' + this.state.name + " with debt: " + this.state.money.toString() + this.state.currency);
 
     console.log("Notify the parent!");
-    this.props.OnSubmitEvent({name: this.state.name, money: this.state.money, currency: this.state.currency });
+    this.props.OnSubmitEvent({  savingsAccountId: this.state.savingsAccount._id, 
+                                name: this.state.name, 
+                                money: this.state.money, 
+                                currency: this.state.currency 
+                              });
 
   }
 
@@ -174,7 +181,8 @@ class DebtAddForm extends React.Component{
 }
 
 DebtAddForm.propTypes = {
-  OnSubmitEvent: PropTypes.func
+  OnSubmitEvent: PropTypes.func,
+  OnAccountChange: PropTypes.func
 };
 
 export default DebtAddForm

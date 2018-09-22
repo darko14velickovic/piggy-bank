@@ -6,6 +6,21 @@ class DebtService {
 
   // CRUDs
 
+  getDebt(id, callback)
+  {
+    this.db.debts.find({_id: id}, function(err, docs){
+      
+      if(err)
+      {
+        alert("Debt could not be found!");
+      }
+      else
+      {
+        callback(docs);
+      }
+    });
+  }
+
   getAllDebts(email, callback)
   {
     this.db.debts.find({accountEmail: email}, function(err, docs){

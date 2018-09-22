@@ -48,7 +48,7 @@ class SavingsComponent extends React.Component{
 
   handleSavingsStatusChange(event)
   {
-    this.setState({currentSavingsAccountStatus: event.target.value});
+    this.setState({currentSavingsAccountStatus: Number(event.target.value)});
   }
 
   handleSavingsCurrencyChange(event)
@@ -149,11 +149,24 @@ class SavingsComponent extends React.Component{
     let renderCreateSevings = this.state.createSavings;
     let componentStyle = { ...styles.textBox };
 
+    const smallIconsStyle = {
+      fontSize: '2vw',
+      marginTop: '3px',
+      marginRight: '5px'
+    };
+
+    const flexContainer = {
+      display: 'flex',
+      flexDirection: 'row',
+      flexWrap: 'nowrap'
+    };
+    
+
     const savingsList = this.state.savingsAccounts.map((savingsAccount) =>
       <div key={savingsAccount._id} className="saving-item col-md-3">
           <div className="row">
             <div className="col-md-12">
-              <i className="fa fa-briefcase small-icon"></i>
+              <i className="fa fa-briefcase" style={smallIconsStyle}></i>
             </div>
           </div>
 
@@ -171,8 +184,8 @@ class SavingsComponent extends React.Component{
 
           <div className="row">
             <div className="col-md-12">
-              <i className="fa fa-eye small-icon" onClick={() => this.openSavingsAccount(savingsAccount._id)}></i>
-              <i className="fa fa-times small-icon" onClick={() => this.deleteSavingsAccount(savingsAccount._id)}></i>
+              <i style={smallIconsStyle} className="fa fa-eye" onClick={() => this.openSavingsAccount(savingsAccount._id)}></i>
+              <i style={smallIconsStyle} className="fa fa-times" onClick={() => this.deleteSavingsAccount(savingsAccount._id)}></i>
             </div>
           </div>
 
@@ -218,6 +231,7 @@ class SavingsComponent extends React.Component{
               <label>
                 Current status:
                 <input className=""
+                   type="number"
                   style={componentStyle} type="number"
                   value={this.state.currentSavingsAccountStatus}
                   onChange={this.handleSavingsStatusChange}
@@ -235,10 +249,9 @@ class SavingsComponent extends React.Component{
                   </select>
                 </div>
               </label>
-            <div className="row">
-
-              <Button className="col align-self-start m-r-small" push color={this.props.color} onClick={this.createSaving}>Save</Button>
-              <Button className="col align-self-end m-l-small" push color={this.props.color} onClick={this.closeForm}>Cancel</Button>
+            <div style={flexContainer}>
+              <Button className="m-r-small" push color={this.props.color} onClick={this.createSaving}>Save</Button>
+              <Button className="m-l-small" push color={this.props.color} onClick={this.closeForm}>Cancel</Button>
             </div>
 
             </div>

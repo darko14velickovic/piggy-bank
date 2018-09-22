@@ -90,14 +90,15 @@ class SavingsService {
 
   addMoneyToAccount(accountID, money, currency)
   {
-      this.db.savings.find({ _id: accountID, currency: currency },
+      var proxyThis = this;
+      this.db.savings.find({ _id: accountID },
         function (err, docs) {
 
                   if(docs.length != 0)
                   {
                     let doc = docs[0];
-                    doc.money += money;
-                    this.db.savings.update({ _id: doc._id }, doc, {}, function (err, numReplaced) {
+                    doc.amount += money;
+                    proxyThis.db.savings.update({ _id: doc._id }, doc, {}, function (err, numReplaced) {
 
                         if(err)
                         {
@@ -112,6 +113,33 @@ class SavingsService {
                   }
 
         });
+  }
+
+  remoteMoneyFromAccount(accountID, money, currency)
+  {
+    var proxyThis = this;
+    this.db.savings.find({ _id: accountID },
+      function (err, docs) {
+
+                if(docs.length != 0)
+                {
+                  let doc = docs[0];
+                  doc.amount -= money;
+                  proxyThis.db.savings.update({ _id: doc._id }, doc, {}, function (err, numReplaced) {
+
+                      if(err)
+                      {
+                        alert("Error happened!");
+                      }
+
+                  });
+                }
+                else
+                {
+                  alert("Account does not exists!");
+                }
+
+      });
   }
 
 };

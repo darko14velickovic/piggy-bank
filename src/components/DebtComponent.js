@@ -1,9 +1,10 @@
 import { View } from 'react-desktop/windows';
-import DebtService from '../services/DebtService'
-import DebtAddForm from './debtForms/DebtAddForm'
-import DatabaseContext from '../dal/database'
+import DebtService from '../services/DebtService';
+import SavingsService from '../services/SavingsService';
+import DebtAddForm from './debtForms/DebtAddForm';
+import DatabaseContext from '../dal/database';
 import styles from './DebtComponentStyle';
-import OfflineStorage from '../dal/browser-storage'
+import OfflineStorage from '../dal/browser-storage';
 import React from 'react';
 
 
@@ -18,9 +19,11 @@ class DebtComponent extends React.Component{
                   loggedInUser: props.loggedInUser,
                   debts: [],
                   initialDebts: [],
+                  selectedAccount:""
                 };
 
     this.debtService = new DebtService(DatabaseContext);
+    this.savingsService = new SavingsService(DatabaseContext);
     this.storage = new OfflineStorage();
   }
 
@@ -31,12 +34,24 @@ class DebtComponent extends React.Component{
     })
   }
 
+  handleAccountChange(accountId)
+  {
+    console.log("Handle account change called in Debt Component!");
+
+    var thisProxy = this;
+    this.setState({selectedAccount: accountId}, function(err){
+      console.log("State updated called!");
+      console.log(thisProxy.state.selectedAccount);
+    });
+  }
+
   handleAddFormSubmit(obj) {
     var that = this;
 
     obj.accountEmail = this.state.loggedInUser;
     this.debtService.insertDebt(obj, function(){
         that.debtService.getAllDebts(that.state.loggedInUser, function(list){
+          that.savingsService.remoteMoneyFromAccount(obj.savingsAccountId, obj.money, obj.currency);
           that.setState({debts : list, initialDebts: list});
     })
     });
@@ -64,6 +79,11 @@ class DebtComponent extends React.Component{
 
     if(result)
     {
+
+      thisProxy.debtService.getDebt(id, function(data){
+        thisProxy.savingsService.addMoneyToAccount(thisProxy.state.selectedAccount._id, data[0].money, data[0].currency);
+      });
+
       this.debtService.removeDebt(id,
       function(numRemoved){
 
@@ -72,7 +92,8 @@ class DebtComponent extends React.Component{
         });
 
         thisProxy.setState({debts: newArray});
-        //alert("Success!");
+
+        
 
       },
       function(err){
@@ -125,7 +146,12 @@ class DebtComponent extends React.Component{
           <ul className="ul-holder" style={listStyle}>{listItems}</ul>
 
           <div className="inline-content">
-            <DebtAddForm loggedInUser={this.state.loggedInUser} name={this.state.name} money={this.state.money} OnSubmitEvent={this.handleAddFormSubmit.bind(this)} />
+            <DebtAddForm loggedInUser={this.state.loggedInUser} 
+                         name={this.state.name} 
+                         money={this.state.money} 
+                         OnSubmitEvent={this.handleAddFormSubmit.bind(this)}
+                         OnAccountChange={this.handleAccountChange.bind(this)} 
+                         />
           </div>
       </View>
 
