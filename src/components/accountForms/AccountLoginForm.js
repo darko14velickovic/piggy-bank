@@ -1,6 +1,6 @@
 import styles from './styles/windows10';
-import React, { Component } from 'react';
-import { Button, Label } from 'react-desktop/windows';
+import React from 'react';
+import { Button } from 'react-desktop/windows';
 import PropTypes from 'prop-types';
 
 

@@ -164,26 +164,26 @@ class SavingsComponent extends React.Component{
 
     const savingsList = this.state.savingsAccounts.map((savingsAccount) =>
       <div key={savingsAccount._id} className="saving-item col-md-3">
-          <div className="row">
-            <div className="col-md-12">
+          <div className="">
+            <div className="">
               <i className="fa fa-briefcase" style={smallIconsStyle}></i>
             </div>
           </div>
 
-          <div className="row">
-            <div className="col-md-12">
+          <div className="">
+            <div className="">
              <i className="acc-name-field"> {savingsAccount.name} </i>
             </div>
           </div>
 
-          <div className="row">
-            <div className="col-md-12">
+          <div className="">
+            <div className="">
               <i className="acc-name-field"> Current status: {savingsAccount.amount} {savingsAccount.currency} </i>
             </div>
           </div>
 
-          <div className="row">
-            <div className="col-md-12">
+          <div className="">
+            <div className="">
               <i style={smallIconsStyle} className="fa fa-eye" onClick={() => this.openSavingsAccount(savingsAccount._id)}></i>
               <i style={smallIconsStyle} className="fa fa-times" onClick={() => this.deleteSavingsAccount(savingsAccount._id)}></i>
             </div>
@@ -193,21 +193,21 @@ class SavingsComponent extends React.Component{
     );
 
     return (
-      <div className="row container">
+      <div className="">
         <div className="saving-holder col-md-12">
           <div className="row">
             {savingsList}
 
             <div className="saving-item col-md-3">
 
-              <div className="row">
-                <div className="col-md-12">
+              <div className="">
+                <div className="">
                   <i onClick={this.openCreateSavingsAccount} className="fa fa-plus-square big-icon"></i>
                 </div>
               </div>
 
-              <div className="row">
-                <div className="col-md-12">
+              <div className="">
+                <div className="">
                   <i className="add-text-field" > Add new savings </i>
                 </div>
               </div>

@@ -19,7 +19,7 @@ function createWindow() {
     {
       width: 1000,
       height: 800,
-      minWidth: 1000,
+      minWidth: 1200,
       minHeight: 800,
       frame:false,
       icon: path.join(__dirname, '../src/logo.svg')

@@ -189,11 +189,10 @@ input:checked + .slider:before {
 
 .saving-holder
 {
+  display: flex;
+  flex-wrap: wrap;
   max-height: 45vh;
   overflow-y: scroll;
-  width:60vw;
-  padding-bottom: 15px;
-
 }
 
 .saving-holder::-webkit-scrollbar {
@@ -215,7 +214,7 @@ input:checked + .slider:before {
 .saving-item
 {
   min-height: 14vh;
-  width: 10vw;
+  min-width: 15vw;
   border: 2px solid gray;
   display:inline-block;
   margin-right: 1vw;
@@ -223,6 +222,8 @@ input:checked + .slider:before {
   text-align: center;
   white-space: pre-wrap;      /* CSS3 */
   overflow-wrap: break-word;
+  display: flex;
+  flex-direction: column;
 }
 
 .acc-name-field{
