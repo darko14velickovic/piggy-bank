@@ -163,7 +163,7 @@ class SavingsComponent extends React.Component{
     
 
     const savingsList = this.state.savingsAccounts.map((savingsAccount) =>
-      <div key={savingsAccount._id} className="saving-item col-md-3">
+      <div key={savingsAccount._id} className="saving-item">
           <div className="">
             <div className="">
               <i className="fa fa-briefcase" style={smallIconsStyle}></i>
@@ -194,11 +194,11 @@ class SavingsComponent extends React.Component{
 
     return (
       <div className="">
-        <div className="saving-holder col-md-12">
-          <div className="row">
+        <div className="saving-holder">
+          
             {savingsList}
 
-            <div className="saving-item col-md-3">
+            <div className="saving-item">
 
               <div className="">
                 <div className="">
@@ -212,7 +212,7 @@ class SavingsComponent extends React.Component{
                 </div>
               </div>
             </div>
-          </div>
+          
         </div>
         <div className="col-md-3 no-left-padding">
           {renderCreateSevings &&

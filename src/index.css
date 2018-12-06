@@ -191,6 +191,7 @@ input:checked + .slider:before {
 {
   display: flex;
   flex-wrap: wrap;
+  flex-flow: row wrap;
   max-height: 45vh;
   overflow-y: scroll;
 }
